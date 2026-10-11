@@ -1,0 +1,145 @@
+"""
+Generates a realistic conversational corpus of modern chat, SMS, WhatsApp dialogues,
+greetings, and daily expressions.
+"""
+
+import os
+
+conversations = [
+    # Introductions & Greetings
+    "hello my name is john",
+    "hello my name is alex",
+    "hello my name is david",
+    "hello my name is rahul",
+    "hello my name is sarah",
+    "hello my name is emma",
+    "hello my name is michael",
+    "hello my friend how are you",
+    "hello my friend how are you doing",
+    "hello there how are you today",
+    "hello there how have you been",
+    "hello how are you doing today",
+    "hello how are you feeling today",
+    "hello everyone welcome to the meeting",
+    "hello everyone good morning",
+    "hello everyone how are you all doing",
+    "hi my name is john",
+    "hi my name is alex",
+    "hi my name is david",
+    "hi my name is rahul",
+    "hi how are you doing today",
+    "hi how are you doing my friend",
+    "hi there nice to meet you",
+    "hi there how is everything going",
+    "hi hello how have you been",
+    "hey there what is up",
+    "hey there how is it going",
+    "hey how are you doing today",
+    "hey what are you doing right now",
+    "good morning have a great day ahead",
+    "good morning how was your sleep",
+    "good morning hope you are doing well",
+    "good afternoon hope you are having a productive day",
+    "good evening how was your day today",
+    "good night and sweet dreams take care",
+
+    # Questions & Inquiries
+    "how are you doing today",
+    "how are you doing my friend",
+    "how are you feeling today",
+    "how was your day today",
+    "how is work going for you",
+    "how can i help you with this",
+    "how do you do that",
+    "how much does this cost",
+    "what are you doing right now",
+    "what are you doing today",
+    "what is your name please",
+    "what is your phone number",
+    "what is your email address",
+    "what is the plan for tonight",
+    "what is the update on this project",
+    "what time are we meeting today",
+    "what do you want to eat for dinner",
+    "where are you right now",
+    "where are you going today",
+    "where should we meet today",
+    "where is the nearest station",
+    "when are you leaving for home",
+    "when will you be free today",
+    "who is coming to the party",
+    "why did you say that",
+
+    # Responses & Common Daily Phrases
+    "i am doing great thank you so much",
+    "i am doing well how about you",
+    "i am fine thank you for asking",
+    "i am on my way right now",
+    "i will be there in ten minutes",
+    "i will call you as soon as i am free",
+    "i will call you back in a minute",
+    "i will let you know soon",
+    "i will send you the details right away",
+    "i will send you the location on whatsapp",
+    "i am so happy for you congratulations",
+    "i am sorry for the delay in reply",
+    "i was busy with some work today",
+    "i love this so much thank you",
+    "i think this is a great idea",
+    "i hope you are doing well today",
+    "i want to know more about this",
+    "i need some help with my homework",
+    "i think we should go now",
+    "i have already completed the work",
+    "i am looking forward to seeing you",
+
+    # Courtesies, Requests & Closing
+    "can you please call me when you are free",
+    "can you please send me the file",
+    "can you please help me with this problem",
+    "can you please check your messages",
+    "could you please let me know when you arrive",
+    "please let me know if you need any help",
+    "please call me back when you get a chance",
+    "please send me your location",
+    "please take care of yourself",
+    "thank you so much for your help",
+    "thank you very much for everything",
+    "thanks a lot have a nice day",
+    "thanks for letting me know so quickly",
+    "you are welcome anytime my friend",
+    "no problem at all happy to help",
+    "take care and talk to you soon",
+    "see you soon have a safe journey",
+    "see you tomorrow at college",
+    "let us catch up later today",
+    "let me know what you think about this",
+    "sounds like a great plan to me",
+    "have a wonderful weekend ahead"
+]
+
+# Common modern conversational vocabulary
+chat_words = [
+    "hi", "hello", "hey", "how", "have", "here", "help", "name", "is", "my",
+    "you", "are", "what", "where", "when", "why", "who", "which", "will", "would",
+    "please", "thank", "thanks", "good", "morning", "night", "day", "today", "tomorrow",
+    "doing", "going", "call", "send", "fine", "great", "nice", "meet", "see", "soon",
+    "take", "care", "welcome", "love", "friend", "friends", "work", "time", "message",
+    "talk", "later", "free", "ready", "happy", "sorry", "yes", "no", "okay", "sure"
+]
+
+def generate():
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    out_path = os.path.join(project_root, "data", "conversational_corpus.txt")
+    with open(out_path, "w", encoding="utf-8") as f:
+        # Replicate dialogue patterns with natural conversation weights
+        for _ in range(250):
+            for sentence in conversations:
+                f.write(sentence + "\n")
+        # Add conversational word list to ensure strong unigram baselines
+        for _ in range(500):
+            f.write(" ".join(chat_words) + "\n")
+    print(f"Generated {out_path} ({os.path.getsize(out_path):,} bytes)")
+
+if __name__ == "__main__":
+    generate()

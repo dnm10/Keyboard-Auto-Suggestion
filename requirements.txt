@@ -1,0 +1,2 @@
+flask>=3.0.0
+textdistance>=4.6.0

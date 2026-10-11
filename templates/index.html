@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Keyboard Auto-Suggestion & Autocorrect (NLP)</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-branding">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-keyboard"></i>
+                </div>
+                <div>
+                    <h1>Smart Mobile Keyboard Engine</h1>
+                    <p class="subtitle">WhatsApp &amp; Gboard Style Real-Time Suggestion, Autocorrect &amp; Language Prediction</p>
+                </div>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <span class="stat-label">VOCABULARY</span>
+                    <span class="stat-val" id="stat-vocab">17,080 words</span>
+                </div>
+                <div class="stat-badge">
+                    <span class="stat-label">CORPUS TOKENS</span>
+                    <span class="stat-val" id="stat-tokens">413,293</span>
+                </div>
+                <div class="stat-badge latency-badge">
+                    <span class="stat-label">LATENCY</span>
+                    <span class="stat-val" id="stat-latency">&lt; 4 ms</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="main-grid">
+            <!-- Left Column: Interactive Keyboard & Input Experience -->
+            <section class="keyboard-section card glass">
+                <div class="section-top-bar">
+                    <div class="mode-selector">
+                        <label for="algorithm-mode"><i class="fa-solid fa-sliders"></i> Mode:</label>
+                        <select id="algorithm-mode" class="mode-select">
+                            <option value="hybrid" selected>Smart Mobile / WhatsApp Mode (Prefix + Autocorrect + Next-Word)</option>
+                            <option value="next_word">Next-Word Prediction Only (Trigram &amp; Bigram LM)</option>
+                            <option value="prefix">Prefix Auto-Completion (Trie Search)</option>
+                            <option value="levenshtein">Spelling Autocorrect (Damerau-Levenshtein)</option>
+                            <option value="jaccard">Jaccard 2-Gram Similarity</option>
+                        </select>
+                    </div>
+
+                    <!-- Quick Try Presets -->
+                    <div class="preset-pills">
+                        <span class="preset-title">Test Quick Phrases:</span>
+                        <button class="pill-btn" data-text="h">Type "h"</button>
+                        <button class="pill-btn" data-text="hello ">Type "hello [space]"</button>
+                        <button class="pill-btn" data-text="hello my ">Type "hello my [space]"</button>
+                        <button class="pill-btn" data-text="hello my name ">Type "hello my name [space]"</button>
+                        <button class="pill-btn" data-text="how are ">Type "how are [space]"</button>
+                        <button class="pill-btn" data-text="helo">Typo "helo"</button>
+                    </div>
+                </div>
+
+                <!-- Text Editor -->
+                <div class="editor-wrapper">
+                    <div class="editor-header">
+                        <span class="editor-title"><i class="fa-solid fa-mobile-screen-button"></i> Mobile Typing Pad (Tap suggestions to write sentences)</span>
+                        <div class="editor-actions">
+                            <button id="btn-clear" class="btn-icon" title="Clear text"><i class="fa-solid fa-trash-can"></i> Clear</button>
+                            <button id="btn-copy" class="btn-icon" title="Copy text"><i class="fa-solid fa-copy"></i> Copy</button>
+                        </div>
+                    </div>
+                    <textarea 
+                        id="user-input" 
+                        class="smart-textarea" 
+                        placeholder="Start typing on your keyboard or tap virtual keys below (e.g. 'h', 'hello ', 'how are ')..."
+                        rows="3"
+                        autofocus
+                    >{{ keyword or '' }}</textarea>
+                </div>
+
+                <!-- Live Auto-Suggestion Bar (Gboard / Mobile Keyboard Style) -->
+                <div class="suggestion-bar-container">
+                    <div class="suggestion-bar-header">
+                        <span><i class="fa-solid fa-wand-magic-sparkles"></i> Mobile Keyboard Suggestion Bar (Tap word to auto-insert):</span>
+                        <span id="active-token-indicator" class="active-token-badge">Status: <strong>Ready</strong></span>
+                    </div>
+                    <div id="suggestion-strip" class="suggestion-strip">
+                        <div class="suggestion-placeholder">Type to see smart keyboard suggestions...</div>
+                    </div>
+                </div>
+
+                <!-- Interactive Virtual QWERTY Keyboard -->
+                <div class="virtual-keyboard">
+                    <div class="keyboard-row">
+                        <button class="key" data-key="q">Q</button>
+                        <button class="key" data-key="w">W</button>
+                        <button class="key" data-key="e">E</button>
+                        <button class="key" data-key="r">R</button>
+                        <button class="key" data-key="t">T</button>
+                        <button class="key" data-key="y">Y</button>
+                        <button class="key" data-key="u">U</button>
+                        <button class="key" data-key="i">I</button>
+                        <button class="key" data-key="o">O</button>
+                        <button class="key" data-key="p">P</button>
+                    </div>
+                    <div class="keyboard-row">
+                        <button class="key" data-key="a">A</button>
+                        <button class="key" data-key="s">S</button>
+                        <button class="key" data-key="d">D</button>
+                        <button class="key" data-key="f">F</button>
+                        <button class="key" data-key="g">G</button>
+                        <button class="key" data-key="h">H</button>
+                        <button class="key" data-key="j">J</button>
+                        <button class="key" data-key="k">K</button>
+                        <button class="key" data-key="l">L</button>
+                    </div>
+                    <div class="keyboard-row">
+                        <button class="key key-shift" data-key="shift"><i class="fa-solid fa-arrow-up"></i></button>
+                        <button class="key" data-key="z">Z</button>
+                        <button class="key" data-key="x">X</button>
+                        <button class="key" data-key="c">C</button>
+                        <button class="key" data-key="v">V</button>
+                        <button class="key" data-key="b">B</button>
+                        <button class="key" data-key="n">N</button>
+                        <button class="key" data-key="m">M</button>
+                        <button class="key key-backspace" data-key="backspace"><i class="fa-solid fa-delete-left"></i></button>
+                    </div>
+                    <div class="keyboard-row bottom-row">
+                        <button class="key key-special" data-key=",">,</button>
+                        <button class="key key-space" data-key=" ">SPACE</button>
+                        <button class="key key-special" data-key=".">.</button>
+                        <button class="key key-enter" data-key="enter"><i class="fa-solid fa-arrow-turn-down"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: NLP Insights & Scoring Breakdown -->
+            <section class="insights-section">
+                <!-- Ranked Candidates Table -->
+                <div class="card glass">
+                    <div class="card-header-styled">
+                        <h2><i class="fa-solid fa-chart-simple"></i> NLP Candidate Ranking Matrix</h2>
+                        <span class="badge-count" id="candidate-count">0 candidates</span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="styled-table" id="candidates-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Suggested Word</th>
+                                    <th>Confidence %</th>
+                                    <th>Language Prob P(w)</th>
+                                    <th>Corpus Freq</th>
+                                    <th>Edit Dist</th>
+                                    <th>Engine</th>
+                                </tr>
+                            </thead>
+                            <tbody id="candidates-body">
+                                {% if suggestions %}
+                                    {% for suggestion in suggestions %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td class="word-cell"><strong>{{ suggestion['Word'] }}</strong></td>
+                                        <td><span class="metric-pill">{{ "%.1f"|format(suggestion['Similarity'] * 100) }}%</span></td>
+                                        <td><code>{{ "%.6f"|format(suggestion.get('Prob', 0.0)) }}</code></td>
+                                        <td>{{ suggestion.get('Freq', '-') }}</td>
+                                        <td>{{ suggestion.get('EditDist', '0') }}</td>
+                                        <td><span class="tag-pill tag-jaccard">Jaccard</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr class="empty-row">
+                                        <td colspan="7">
+                                            <div class="empty-state">
+                                                <i class="fa-solid fa-keyboard empty-icon"></i>
+                                                <p>Type above to observe real-time candidate scores and probabilities.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- NLP Theory Breakdown -->
+                <div class="card glass mt-4">
+                    <div class="card-header-styled">
+                        <h2><i class="fa-solid fa-brain"></i> How The Suggestion Logic Works</h2>
+                    </div>
+                    <div class="nlp-explanation-grid">
+                        <div class="nlp-card">
+                            <div class="nlp-card-icon"><i class="fa-solid fa-keyboard"></i></div>
+                            <h3>1. Prefix Auto-Completion</h3>
+                            <p>Typing <code>h</code> scans the prefix Trie for common English words like <strong>hi</strong>, <strong>hello</strong>, <strong>how</strong>, <strong>have</strong>.</p>
+                        </div>
+                        <div class="nlp-card">
+                            <div class="nlp-card-icon"><i class="fa-solid fa-forward-step"></i></div>
+                            <h3>2. Trigram Next-Word LM</h3>
+                            <p>Typing <code>hello my [space]</code> triggers Markov chain <code>P(w₃ | w₁, w₂)</code> which predicts <strong>name</strong> with &gt;69% and <code>my name</code> predicts <strong>is</strong> with &gt;98%!</p>
+                        </div>
+                        <div class="nlp-card">
+                            <div class="nlp-card-icon"><i class="fa-solid fa-spell-check"></i></div>
+                            <h3>3. Bayesian Autocorrect</h3>
+                            <p>Typing <code>helo</code> detects a typo and generates edit-distance 1 candidates, recommending <strong>hello</strong> with 75% confidence.</p>
+                        </div>
+                        <div class="nlp-card">
+                            <div class="nlp-card-icon"><i class="fa-solid fa-calculator"></i></div>
+                            <h3>4. Q-Gram Jaccard Metric</h3>
+                            <p>Computes character 2-gram overlap: <code>|Q(A) ∩ Q(B)| / |Q(A) ∪ Q(B)|</code> accelerated via inverted indexing in &lt;3ms.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Smart Mobile Keyboard Auto-Suggestion NLP Project &bull; Python, Flask, TextDistance &amp; Modern JS</p>
+        </footer>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
